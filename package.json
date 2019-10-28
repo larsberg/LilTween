@@ -1,0 +1,22 @@
+{
+  "name": "liltween",
+  "version": "1.0.0",
+  "description": "a no-frills javascript easing class",
+  "main": "LilTween.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/larsberg/LilTween.git"
+  },
+  "keywords": [
+    "tween"
+  ],
+  "author": "lars berg",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/larsberg/LilTween/issues"
+  },
+  "homepage": "https://github.com/larsberg/LilTween#readme"
+}
