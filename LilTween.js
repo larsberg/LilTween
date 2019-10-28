@@ -97,6 +97,8 @@ class LilTween {
       value: 0
     }, options)
 
+    this.value = this.from
+
     // add it to the Manager
     manager.addTween(this)
   }
