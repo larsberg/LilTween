@@ -80,6 +80,7 @@ class LilTween {
     Object.assign(this, {
       _chainedTweens: [],
       _endTime: 0,
+      _manage: true,
       _started: false,
       _startTime: 0,
       _stopped: false,
@@ -100,7 +101,9 @@ class LilTween {
     this.value = this.from
 
     // add it to the Manager
-    manager.addTween(this)
+    if(this._manage){
+      manager.addTween(this)
+    }
   }
 
   start(startDelay = 0) {
@@ -116,10 +119,12 @@ class LilTween {
 
     this._stopped = false
 
-    if(this._useRAF) {
-      this._rAF()
-    } else {
-      manager.start()
+    if(this._manage){
+      if(this._useRAF) {
+        this._rAF()
+      } else {
+        manager.start()
+      }
     }
   }
 
