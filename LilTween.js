@@ -146,18 +146,22 @@ class LilTween {
       this._stopped = true
       this._started = false
       var u = 1
-      var value = lerp(this.from, this.to, this.ease(u))
-      if(this.onUpdate) this.onUpdate( value, u, this)
-      if(this.onStopped)  this.onStopped(this)
+      this.value = lerp(this.from, this.to, this.ease(u))
 
+      // callbacks
+      if(this.onUpdate) {
+        this.onUpdate(this.value, u, this)
+      }
+      if(this.onEnd) {
+         this.onEnd(this.value, this)
+      }
+
+      // chaining
       this._chainedTweens.forEach( t => {
         t.start()
       })
 
-      if(this.onEnd) {
-         this.onEnd(value, this)
-      }
-
+      //
       if(this.autoReverse) {
         var swapper = this.from
         this.from = this.to
