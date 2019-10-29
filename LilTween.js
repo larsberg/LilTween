@@ -35,7 +35,6 @@ class LilTweenManager {
 
   update(time=performance.now()) {
 
-
     if(!this._stopped) {
 
       for(var i=this.tweens.length-1; i>=0; i--) {
@@ -83,9 +82,9 @@ class LilTween {
       _manage: true,
       _started: false,
       _startTime: 0,
-      _stopped: false,
+      _stopped: true,
       _useRAF: false,
-      autoReverese: false,
+      autoReverse: false,
       delay: 0,
       duration: 300,
       ease: noEase,
@@ -109,20 +108,18 @@ class LilTween {
   start(startDelay = 0) {
 
     this._startTime = startDelay + this.delay + performance.now()
-
-    if(this._stopped && !this._useRAF) {
-      // if it's stopped it's probably been removed from the manager
-      // so I'm assuming we need to add it again, this might cause
-      // duplicate tweens in our array but I'm not sure yet
-      manager.addTween(this)
-    }
-
     this._stopped = false
 
     if(this._manage){
       if(this._useRAF) {
         this._rAF()
       } else {
+        if(this._stopped) {
+          // if it's stopped it's probably been removed from the manager
+          // so I'm assuming we need to add it again, this might cause
+          // duplicate tweens in our array but I'm not sure yet
+          manager.addTween(this)
+        }
         manager.start()
       }
     }
@@ -136,6 +133,7 @@ class LilTween {
 
     if (this._stopped) {
 
+      console.log('_stopped')
       // nothing
 
     } else if(t < this._startTime) {
@@ -160,7 +158,7 @@ class LilTween {
          this.onEnd(value, this)
       }
 
-      if(this.autoReverese) {
+      if(this.autoReverse) {
         var swapper = this.from
         this.from = this.to
         this.to = swapper
