@@ -84,6 +84,7 @@ class LilTween {
       _startTime: 0,
       _stopped: true,
       _useRAF: false,
+      _isReversed: false,
       autoReverse: false,
       delay: 0,
       duration: 300,
@@ -146,7 +147,8 @@ class LilTween {
       this._stopped = true
       this._started = false
       var u = 1
-      this.value = lerp(this.from, this.to, this.ease(u))
+
+      this.value = lerp(this.from, this.to, this.ease(this._isReversed ? u : 1 - u))
 
       // callbacks
       if(this.onUpdate) {
@@ -163,9 +165,11 @@ class LilTween {
 
       //
       if(this.autoReverse) {
-        var swapper = this.from
-        this.from = this.to
-        this.to = swapper
+
+        this._isReversed = !this._isReversed
+        // var swapper = this.from
+        // this.from = this.to
+        // this.to = swapper
       }
 
       if(this.loop) {
@@ -184,7 +188,7 @@ class LilTween {
       // UPDATE
       var elapsedTime = t - this._startTime
       var u = elapsedTime / this.duration
-      this.value = lerp(this.from, this.to, this.ease(u))
+      this.value = lerp(this.from, this.to, this.ease(this._isReversed ? u : 1 - u))
 
       if(this.onUpdate) {
         this.onUpdate( this.value, u, this )
