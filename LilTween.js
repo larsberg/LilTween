@@ -148,7 +148,7 @@ class LilTween {
       this._started = false
       var u = 1
 
-      this.value = lerp(this.from, this.to, this.ease(this._isReversed ? u : 1 - u))
+      this.value = lerp(this.from, this.to, this.ease(this._isReversed ? 1 - u : u))
 
       // callbacks
       if(this.onUpdate) {
@@ -188,7 +188,7 @@ class LilTween {
       // UPDATE
       var elapsedTime = t - this._startTime
       var u = elapsedTime / this.duration
-      this.value = lerp(this.from, this.to, this.ease(this._isReversed ? u : 1 - u))
+      this.value = lerp(this.from, this.to, this.ease(this._isReversed ? 1 - u : u))
 
       if(this.onUpdate) {
         this.onUpdate( this.value, u, this )
