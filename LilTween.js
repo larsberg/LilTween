@@ -35,6 +35,7 @@ class LilTweenManager {
 
   update(time=performance.now()) {
 
+
     if(!this._stopped) {
 
       for(var i=this.tweens.length-1; i>=0; i--) {
@@ -109,7 +110,6 @@ class LilTween {
   start(startDelay = 0) {
 
     this._startTime = startDelay + this.delay + performance.now()
-    this._stopped = false
 
     if(this._manage){
       if(this._useRAF) {
@@ -124,6 +124,7 @@ class LilTween {
         manager.start()
       }
     }
+    this._stopped = false
   }
 
   stop() {
@@ -134,7 +135,6 @@ class LilTween {
 
     if (this._stopped) {
 
-      console.log('_stopped')
       // nothing
 
     } else if(t < this._startTime) {
