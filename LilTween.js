@@ -124,6 +124,7 @@ class LilTween {
         manager.start()
       }
     }
+
     this._stopped = false
   }
 
@@ -174,7 +175,7 @@ class LilTween {
 
       if(this.loop) {
         this.start()
-        this._startTime = t // <-- hack to compensate for a single frame (16.66ms) delay
+        this._startTime = t + this.delay// <-- hack to compensate for a single frame (16.66ms) delay
       }
 
     } else {
