@@ -1,73 +1,73 @@
 function lerp ( x, y, t ) {
-  return ( 1 - t ) * x + t * y;
+	return ( 1 - t ) * x + t * y;
 }
 
 function noEase (u) {
-  return u
+	return u
 }
 
 
 
 
 /*
-  TODO:
-    - [ ] on window loose focus we'll need to pause all the tweens...
+	TODO:
+		- [ ] on window loose focus we'll need to pause all the tweens...
 */
 
 class LilTweenManager {
 
-  constructor () {
-    this._stopped = true
-    this.tweens = []
-    this.updateFunc = this.update.bind(this)
-  }
+	constructor () {
+		this._stopped = true
+		this.tweens = []
+		this.updateFunc = this.update.bind(this)
+	}
 
-  start() {
-    if(this._stopped){
-      this._stopped = false
-      this.update()
-    }
-  }
+	start() {
+		if(this._stopped){
+			this._stopped = false
+			this.update()
+		}
+	}
 
-  stop() {
-    this._stopped = true
-  }
+	stop() {
+		this._stopped = true
+	}
 
-  update(time=performance.now()) {
+	update(time=performance.now()) {
 
 
-    if(!this._stopped) {
+		if(!this._stopped) {
 
-      for(var i=this.tweens.length-1; i>=0; i--) {
+			for(var i=this.tweens.length-1; i>=0; i--) {
 
-        this.tweens[i].update(time)
+				this.tweens[i].update(time)
 
-        if(this.tweens[i]._stopped) {
-          this.removeTweenByIndex(i)
-        }
-      }
+				if(this.tweens[i]._stopped) {
+					this.removeTweenByIndex(i)
+				}
+			}
 
-      window.requestAnimationFrame( this.updateFunc );
-    }
+			window.requestAnimationFrame( this.updateFunc );
+		}
 
-  }
+	}
 
-  addTween( tween ) {
-    this.tweens.push(tween)
-  }
+	addTween( tween ) {
+		this.tweens.push(tween)
+	}
 
-  removeTweenByIndex(index) {
-    this.tweens.splice( index, 1 );
-  }
+	removeTweenByIndex(index) {
+		this.tweens.splice( index, 1 );
+	}
 
-  removeTween( tween ) {
+	removeTween( tween ) {
 
-    var index = this.tweens.indexOf( tween )
-    if (index !== -1) {
-      this.tweens.splice( index, 1 );
-    }
+		var index = this.tweens.indexOf( tween )
+		if (index !== -1) {
+			this.tweens.splice( index, 1 );
+		}
 
-  }
+	}
 }
 
 const manager = new LilTweenManager()
@@ -76,140 +76,156 @@ const manager = new LilTweenManager()
 
 class LilTween {
 
-  constructor(options={}) {
-    Object.assign(this, {
-      _chainedTweens: [],
-      _endTime: 0,
-      _manage: true,
-      _started: false,
-      _startTime: 0,
-      _stopped: true,
-      _useRAF: false,
-      _isReversed: false,
-      autoReverse: false,
-      delay: 0,
-      duration: 300,
-      ease: noEase,
-      from: 0,
-      loop: false,
-      onEnd: null,
-      onStart: null,
-      onUpdate: null,
-      to: 1,
-      value: 0
-    }, options)
+	constructor(options={}) {
+		Object.assign(this, {
+			_chainedTweens: [],
+			_endTime: 0,
+			_manage: true,
+			_started: false,
+			_startTime: 0,
+			_stopped: true,
+			_useRAF: false,
+			_isReversed: false,
+			autoReverse: false,
+			delay: 0,
+			duration: 300,
+			ease: noEase,
+			from: 0,
+			loop: false,
+			onEnd: null,
+			onStart: null,
+			onUpdate: null,
+			to: 1,
+			value: 0
+		}, options)
 
-    this.value = this.from
+		this.value = this.from
 
-    // add it to the Manager
-    if(this._manage){
-      manager.addTween(this)
-    }
-  }
+		// add it to the Manager
+		if(this._manage){
+			manager.addTween(this)
+		}
+	}
 
-  start(startDelay = 0) {
+	start(startDelay = 0) {
 
-    this._startTime = startDelay + this.delay + performance.now()
+		this._startTime = startDelay + this.delay + performance.now()
 
-    if(this._manage){
-      if(this._useRAF) {
-        this._rAF()
-      } else {
-        if(this._stopped) {
-          // if it's stopped it's probably been removed from the manager
-          // so I'm assuming we need to add it again, this might cause
-          // duplicate tweens in our array but I'm not sure yet
-          manager.addTween(this)
-        }
-        manager.start()
-      }
-    }
+		if(this._manage){
+			if(this._useRAF) {
+				this._rAF()
+			} else {
+				if(this._stopped) {
+					// if it's stopped it's probably been removed from the manager
+					// so I'm assuming we need to add it again, this might cause
+					// duplicate tweens in our array but I'm not sure yet
+					manager.addTween(this)
+				}
+				manager.start()
+			}
+		}
 
-    this._stopped = false
-  }
+		this._stopped = false
 
-  stop() {
-    this._stopped = true
-  }
+		return this
+	}
 
-  update(t = performance.now()) {
+	stop() {
+		this._stopped = true
+		if(this.onEnd) {
+			 this.onEnd(this.value, this)
+		}
 
-    if (this._stopped) {
+		return this
+	}
 
-      // nothing
+	update(t = performance.now()) {
 
-    } else if(t < this._startTime) {
+		if (this._stopped) {
 
-      // sit tight
+			// nothing
 
-    } else if(t >= this._startTime + this.duration) {
+		} else if(t < this._startTime) {
 
-      // this needs to stop
-      this._stopped = true
-      this._started = false
-      var u = 1
+			// sit tight
 
-      this.value = lerp(this.from, this.to, this.ease(this._isReversed ? 1 - u : u))
+		} else if(t >= this._startTime + this.duration) {
 
-      // callbacks
-      if(this.onUpdate) {
-        this.onUpdate(this.value, u, this)
-      }
-      if(this.onEnd) {
-         this.onEnd(this.value, this)
-      }
+			// this needs to stop
+			this._stopped = true
+			this._started = false
+			var u = 1
 
-      // chaining
-      this._chainedTweens.forEach( t => {
-        t.start()
-      })
+			if(this._isReversed) {
+				this.value = lerp(this.from, this.to, 1 - this.ease(u))
+			} else {
+				this.value = lerp(this.from, this.to, this.ease(u))
+			}
 
-      //
-      if(this.autoReverse) {
+			// callbacks
+			if(this.onUpdate) {
+				this.onUpdate(this.value, u, this)
+			}
+			if(this.onEnd) {
+				 this.onEnd(this.value, this)
+			}
 
-        this._isReversed = !this._isReversed
-        // var swapper = this.from
-        // this.from = this.to
-        // this.to = swapper
-      }
+			// chaining
+			this._chainedTweens.forEach( t => {
+				t.start()
+			})
 
-      if(this.loop) {
-        this.start()
-        this._startTime = t + this.delay// <-- hack to compensate for a single frame (16.66ms) delay
-      }
+			//
+			if(this.autoReverse) {
 
-    } else {
+				this._isReversed = !this._isReversed
+				// var swapper = this.from
+				// this.from = this.to
+				// this.to = swapper
+			}
 
-      // start things off if need be
-      if(!this._started) {
-        this._started = true
-        if(this.onStart) this.onStart( this.from, this )
-      }
+			if(this.loop) {
+				this.start()
+				this._startTime = t + this.delay// <-- hack to compensate for a single frame (16.66ms) delay
+			}
 
-      // UPDATE
-      var elapsedTime = t - this._startTime
-      var u = elapsedTime / this.duration
-      this.value = lerp(this.from, this.to, this.ease(this._isReversed ? 1 - u : u))
+		} else {
 
-      if(this.onUpdate) {
-        this.onUpdate( this.value, u, this )
-      }
+			// start things off if need be
+			if(!this._started) {
+				this._started = true
+				if(this.onStart) this.onStart( this.from, this )
+			}
 
-    }
+			// UPDATE
+			var elapsedTime = t - this._startTime
+			var u = elapsedTime / this.duration
 
-    if(this._useRAF && !this._stopped) {
-      this._rAF()
-    }
-  }
+			if(this._isReversed) {
+				this.value = lerp(this.from, this.to, 1 - this.ease(u))
+			} else {
+				this.value = lerp(this.from, this.to, this.ease(u))
+			}
 
-  chain (tween) {
-    this._chainedTweens.push(tween)
-    return this
-  }
+			if(this.onUpdate) {
+				this.onUpdate( this.value, u, this )
+			}
 
-  _rAF() {
-    window.requestAnimationFrame( this.update.bind(this) );
-  }
+		}
+
+		if(this._useRAF && !this._stopped) {
+			this._rAF()
+		}
+	}
+
+	chain (tween) {
+		this._chainedTweens.push(tween)
+		return this
+	}
+
+	_rAF() {
+		window.requestAnimationFrame( this.update.bind(this) );
+	}
 
 }
 
